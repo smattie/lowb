@@ -1,0 +1,10 @@
+#!/bin/sh
+
+NOTIFYBIN="/usr/bin/notify-send"
+CAPACITYFILE="/sys/class/power_supply/BAT0/capacity"
+STATUSFILE="/sys/class/power_supply/BAT0/status"
+
+fasm -d NOTIFYBIN=\"$NOTIFYBIN\" \
+     -d CAPACITYFILE=\"$CAPACITYFILE\" \
+     -d STATUSFILE=\"$STATUSFILE\" \
+     main.asm lowb
