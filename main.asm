@@ -32,9 +32,16 @@ define SLEEPSEC 181
 segment readable executable
 start:
 	mov  eax, [esp]
-	lea  ebx, [esp + eax*4 + 8]
-	mov  envp, ebx
+	xor  ebx, ebx
+	inc  ebx
+	cmp  eax, 2
+	jl   theend
+
+	lea  ebx, [esp + 8] ;; argv[1]
+	lea  ecx, [esp + eax*4 + 8]
 	sub  esp, 64
+	mov  envp, ecx
+	mov  [esp + 40], ebx
 
 	mov  eax, open
 	mov  ebx, statFile
@@ -98,8 +105,8 @@ notify:
 
 	child:
 	mov  eax, execve
-	mov  ebx, notifyA0
-	mov  ecx, notifyAV
+	mov  ecx, [esp + 40] ;; argv
+	mov  ebx, [ecx]      ;; argv[0]
 	mov  edx, envp
 	xor  esi, esi
 	int  0x80
@@ -126,13 +133,6 @@ readfd: ;; ebx fd, ecx dst, edx dstLen
 	ret
 
 segment readable
-	notifyAV dd notifyA0, notifyA1, notifyA2, notifyA3, notifyA4, 0
-	notifyA0 db NOTIFYBIN, 0
-	notifyA1 db "-u", 0
-	notifyA2 db "critical", 0
-	notifyA3 db "Low Battery", 0
-	notifyA4 db "Battery is below 10%", 0
-
 	capFile  db CAPACITYFILE, 0
 	statFile db STATUSFILE, 0
 
